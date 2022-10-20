@@ -1,0 +1,55 @@
+---
+output: 
+  github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+library(replicationOrigins)
+```
+
+# replicationOrigins
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+Functions used for replication origin detection and evaluation
+
+## Instalation:
+
+``` r
+install.packages("devtools")  
+devtools::install_github("cran/peakPick")
+devtools::install_github("rjaksik/replicationOrigins")
+
+```
+## pmaORIdetection
+
+```{r, results="asis", echo=FALSE}
+help_console(pmaORIdetection, format = "html")
+```
+
+## detectPeaksOKseq
+
+```{r, results="asis", echo=FALSE}
+help_console(detectPeaksOKseq, format = "html")
+```
+
+## multipleNumericVectorAlign
+
+```{r, results="asis", echo=FALSE}
+help_console(multipleNumericVectorAlign, format = "html")
+```
+
+## numericVectorAlign
+
+```{r, results="asis", echo=FALSE}
+help_console(numericVectorAlign, format = "html")
+```

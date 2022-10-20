@@ -6,9 +6,8 @@
 #' @return Matrix with matched coordinates from all vectors with NA indicating gaps.
 #' @export
 multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
-  
-  require('ape')
-  
+
+
   #1. Calculate all possible pairwise alignments, record the score for each pair.
   Nseq = length(vector_list)
   ScoreMatrix = matrix(NA,ncol=Nseq,nrow=Nseq)
@@ -20,10 +19,10 @@ multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
     }
   }
   dimnames(ScoreMatrix) <- list(1:Nseq, 1:Nseq)
-  
-  
+
+
   #2. Calculate a guide tree based on the pairwise distances (algorithm: Neighbor Joining).
-  tree = nj(ScoreMatrix)
+  tree = ape::nj(ScoreMatrix)
 
   #create alignment order matrix
   Nnode=tree$Nnode
@@ -42,14 +41,14 @@ multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
     AlnMatrix[i,3] = Nidx
   }
   AlnMatrix = AlnMatrix[order(rowSums(AlnMatrix[,1:2])),] #### Warning the order might be wrong!!!!
-  
-  
+
+
   #sort the order matrix (bubble sort)
   changed = T
   Noper = dim(AlnMatrix)[1]
   while (changed==T) {
     changed=F
-    
+
     for (i in 1:(Noper-1)) {
       replace=F
       if (AlnMatrix[i,2]>Nseq) {
@@ -63,8 +62,8 @@ multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
         if(res1idx>i) {
           replace=T
         }
-      }      
-      
+      }
+
       if(replace) {
         tmp = AlnMatrix[i,]
         AlnMatrix[i,] = AlnMatrix[i+1,]
@@ -72,10 +71,10 @@ multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
         changed=T
       }
     }
-  }  
-  
-  
-  
+  }
+
+
+
   #check order
   for (i in 1:Noper) {
     if (AlnMatrix[i,2]>Nseq & !AlnMatrix[i,2] %in% AlnMatrix[1:i,3]) {
@@ -85,7 +84,7 @@ multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
       print(i)
     }
   }
-  
+
 
   #3. Align the sequences by progressive method
   ext_vector_list = c(vector_list,as.list(rep(NA,Nnode+1)))
@@ -93,13 +92,13 @@ multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
     idx1=AlnMatrix[i,1]
     idx2=AlnMatrix[i,2]
     idx3=AlnMatrix[i,3]
-    Aln = numericVectorAlign(ext_vector_list[[idx1]],ext_vector_list[[idx2]],gap_penalty) 
+    Aln = numericVectorAlign(ext_vector_list[[idx1]],ext_vector_list[[idx2]],gap_penalty)
     ext_vector_list[[idx1]]=Aln$AlignTab[,1]
     ext_vector_list[[idx2]]=Aln$AlignTab[,2]
     ext_vector_list[[idx3]]=Aln$Cons
   }
-  
-  
+
+
   #4. Expand the consensus sequences with the (gapped) original sequences
   ConLen = length(ext_vector_list[[ResIdx]])
   MSAres=matrix(NA,nrow=Nseq,ncol=ConLen)
@@ -107,8 +106,8 @@ multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
     AlignTab = numericVectorAlign(ext_vector_list[[ResIdx]],ext_vector_list[[i]],gap_penalty^2)$AlignTab
     MSAres[i,1:ConLen] = AlignTab[,2]
   }
-  
-  
+
+
   #5. Report the multiple sequence alignment
   MSAres[is.na(MSAres)] = '-'
   return(data.frame(MSAres,check.names = F))

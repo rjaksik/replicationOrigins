@@ -8,8 +8,6 @@
 #' @export
 detectPeaksOKseq = function(Data,IntSize=200000,StepSize=1000) {
 
-      require('peakPick')
-
       #extract all chromosomes
       chrs= unique(Data[,1])
 
@@ -29,7 +27,7 @@ detectPeaksOKseq = function(Data,IntSize=200000,StepSize=1000) {
           ptData = tData[tData[,3]<end & tData[,2]>start & !is.na(tData$RFD), ]
           tFitTable[k,1] = round((start+end)/2)
           if (dim(ptData)[1]>0) {
-            model <- lm(1:dim(ptData)[1] ~ poly(ptData[,4], 1, raw=TRUE))
+            model <- stats::lm(1:dim(ptData)[1] ~ poly(ptData[,4], 1, raw=TRUE))
             tFitTable[k,2] = model$coefficients[2][[1]]
           } else {
             tFitTable[k,2] = NA
@@ -45,13 +43,13 @@ detectPeaksOKseq = function(Data,IntSize=200000,StepSize=1000) {
 
       #peak detection
       peaks = rep(FALSE,dim(FitTable)[1])
-      ma <- function(x, n = 5){filter(x, rep(1 / n, n), sides = 2)}
+      ma <- function(x, n = 5){stats::filter(x, rep(1 / n, n), sides = 2)}
       dist = 500
       for (chr in unique(FitTable$chr)) {
         print(paste0("Detecting peaks: ",chr))
         chridx = FitTable$chr == chr
         FitTable$slopeSmooth[chridx] = as.numeric(ma(FitTable$slope[chridx],n=ceiling(100000/dist)))  ### verify for other dist values
-        peaks[chridx] <- peakpick(matrix(FitTable$slopeSmooth[chridx], ncol=1), neighlim=100, peak.npos=100,deriv.lim = 1) &  FitTable$slopeSmooth[chridx]>0  ##neglim should be calculated
+        peaks[chridx] <- peakPick::peakpick(matrix(FitTable$slopeSmooth[chridx], ncol=1), neighlim=100, peak.npos=100,deriv.lim = 1) &  FitTable$slopeSmooth[chridx]>0  ##neglim should be calculated
       }
       FitTablePeak = FitTable
       FitTablePeak$peak=0
