@@ -24,6 +24,8 @@ Functions used for replication origin detection and evaluation
 
 ## Instalation:
 
+The package requires R 3.5.0 or later
+
 ``` r
 install.packages("devtools")  
 devtools::install_github("cran/peakPick")

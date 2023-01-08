@@ -10,6 +10,8 @@ Functions used for replication origin detection and evaluation
 
 ## Instalation:
 
+The package requires R 3.5.0 or later
+
 ``` r
 install.packages("devtools")  
 devtools::install_github("cran/peakPick")
@@ -29,23 +31,22 @@ R Documentation
 </tr>
 </table>
 <h4>
-Detection of replication origins based on mutation patterns associated
-with POLE-exo mutants
+Detection of replication origins based on mutation patterns
 </h4>
 <h4>
 Description
 </h4>
 <p>
 Detection of replication origins based on mutation patterns associated
-with POLE-exo mutants
+with POLE-exo mutants, using PMA score.
 </p>
 <h4>
 Usage
 </h4>
 <pre><code class='language-R'>pmaORIdetection(
-  MUTGR,
-  sel_mutations_norm = c("TCT-&gt;TAT", "TCG-&gt;TTG"),
-  sel_mutations_revcomp = c("AGA-&gt;ATA", "CGA-&gt;CAA"),
+  mutGR,
+  pattern_mut_norm = c("TCT-&gt;TAT", "TCG-&gt;TTG"),
+  pattern_mut_revcomp = c("AGA-&gt;ATA", "CGA-&gt;CAA"),
   win = 2e+05,
   dist = 1000,
   PeakCut = 0.1,
@@ -60,7 +61,7 @@ Arguments
 <table>
 <tr style="vertical-align: top;">
 <td>
-<code>MUTGR</code>
+<code>mutGR</code>
 </td>
 <td>
 <p>
@@ -68,13 +69,13 @@ GenomicRanges object with somatic SNV positions, the object should
 additionally contain an "mutation" column specifying mutation type
 including its context e.g. TCT-\>TAT (this format is not obligatory and
 can be different as long as its the same for sel_mutations\_\*
-variables)
+variables). Strand information is ignored.
 </p>
 </td>
 </tr>
 <tr style="vertical-align: top;">
 <td>
-<code>sel_mutations_norm</code>
+<code>pattern_mut_norm</code>
 </td>
 <td>
 <p>
@@ -85,7 +86,7 @@ TCT-\>TAT, TCG-\>TTG)
 </tr>
 <tr style="vertical-align: top;">
 <td>
-<code>sel_mutations_revcomp</code>
+<code>pattern_mut_revcomp</code>
 </td>
 <td>
 <p>
@@ -143,7 +144,7 @@ test (default: 0.01)
 <td>
 <p>
 perform the algorithm only for a specific set of chromosomes (default:
-NULL - use all basic chromosomes only)
+NULL - use all basic chromosomes)
 </p>
 </td>
 </tr>
@@ -153,7 +154,7 @@ NULL - use all basic chromosomes only)
 </td>
 <td>
 <p>
-version of the reference genome supported values are hg19 and hg38
+version of the reference genome, supported values are hg19 and hg38
 (default: hg19)
 </p>
 </td>
@@ -171,6 +172,12 @@ genomic regions, including the number of mutations from each group used
 to calculate PMA score, smoothed PMA score (used in peak detection),
 positions of peaks and adjusted p-values of the Fisher’s exact test.
 </p>
+<h4>
+Examples
+</h4>
+<pre><code class='language-R'>mutGR = readRDS(system.file("testdata", "somatic_mutations.RDS", package = "replicationOrigins"))
+ori_pos = pmaORIdetection(mutGR, useChrs='chr22')
+</code></pre>
 </div>
 
 ## detectPeaksOKseq
@@ -186,20 +193,28 @@ R Documentation
 </tr>
 </table>
 <h4>
-Detection of RFD profile changes associated with DNA replication
-origins, based on OK-seq data
+Detection of replication origins based on OK-seq data
 </h4>
 <h4>
 Description
 </h4>
 <p>
-Detection of RFD profile changes associated with DNA replication
-origins, based on OK-seq data
+Detection of replication origins based on OK-seq data using RFD profile
+changes. For detailes on how to calculate RFD profiles see: Petryk, N.,
+Kahli, M., d’Aubenton-Carafa, Y. et al. Replication landscape of the
+human genome. Nat Commun 7, 10208 (2016).
+<https://doi.org/10.1038/ncomms10208>
 </p>
 <h4>
 Usage
 </h4>
-<pre><code class='language-R'>detectPeaksOKseq(Data, IntSize = 2e+05, StepSize = 1000)
+<pre><code class='language-R'>detectPeaksOKseq(
+  Data,
+  IntSize = 2e+05,
+  StepSize = 1000,
+  MovingAvgPts = 200,
+  Verbose = TRUE
+)
 </code></pre>
 <h4>
 Arguments
@@ -211,8 +226,9 @@ Arguments
 </td>
 <td>
 <p>
-data frame containing position-specific RFD values. The format is as
-following, 4 columns chr, start, end, RFD
+Data frame containing position-specific RFD values. Four columns are
+expected: chr, start, end, RFD. Column names can be different but the
+order needs to preserved.
 </p>
 </td>
 </tr>
@@ -222,7 +238,7 @@ following, 4 columns chr, start, end, RFD
 </td>
 <td>
 <p>
-size of the window used to calculate linear regression (default:200000)
+Size of the window used to calculate linear regression.
 </p>
 </td>
 </tr>
@@ -232,8 +248,28 @@ size of the window used to calculate linear regression (default:200000)
 </td>
 <td>
 <p>
-distance between intervals used to calculate linear regression
-(default:1000)
+Distance between intervals used to calculate linear regression.
+</p>
+</td>
+</tr>
+<tr style="vertical-align: top;">
+<td>
+<code>MovingAvgPts</code>
+</td>
+<td>
+<p>
+Number of neighboring points used to calculate the moving average for
+the purpose of linear regression slope smoothing.
+</p>
+</td>
+</tr>
+<tr style="vertical-align: top;">
+<td>
+<code>Verbose</code>
+</td>
+<td>
+<p>
+Show chromosome progress details.
 </p>
 </td>
 </tr>
@@ -245,6 +281,12 @@ Value
 Table with coordinates of the RFD shifts associated with DNA replication
 origins
 </p>
+<h4>
+Examples
+</h4>
+<pre><code class='language-R'>rfd = readRDS(system.file("testdata", "rfd_profile.RDS", package = "replicationOrigins"))
+rfd_ori_pos = detectPeaksOKseq(rfd, Verbose = FALSE)
+</code></pre>
 </div>
 
 ## multipleNumericVectorAlign
@@ -273,7 +315,7 @@ coordinates) using an algorithm similar to ClustalW
 <h4>
 Usage
 </h4>
-<pre><code class='language-R'>multipleNumericVectorAlign(vector_list, gap_penalty = 1e+06)
+<pre><code class='language-R'>multipleNumericVectorAlign(vector_list, gap_penalty = 1e+06, gap_symbol = NA)
 </code></pre>
 <h4>
 Arguments
@@ -285,7 +327,7 @@ Arguments
 </td>
 <td>
 <p>
-list of numeric vectors to be compared
+List of numeric vectors to be compared.
 </p>
 </td>
 </tr>
@@ -295,7 +337,18 @@ list of numeric vectors to be compared
 </td>
 <td>
 <p>
-penalty for gap insertion (default:1000000)
+Penalty for gap insertion. Use lower values to match more similar
+positions, at the cost of increased number of gaps.
+</p>
+</td>
+</tr>
+<tr style="vertical-align: top;">
+<td>
+<code>gap_symbol</code>
+</td>
+<td>
+<p>
+Value used to represent gaps
 </p>
 </td>
 </tr>
@@ -304,9 +357,16 @@ penalty for gap insertion (default:1000000)
 Value
 </h4>
 <p>
-Matrix with matched coordinates from all vectors with NA indicating
-gaps.
+Matrix with matched coordinates from all vectors with NA (or other
+chosen symbol) indicating gaps.
 </p>
+<h4>
+Examples
+</h4>
+<pre><code class='language-R'>pos_sets = readRDS(system.file("testdata", "coordinate_sets.RDS", package = "replicationOrigins"))
+pos_sets_num = lapply(pos_sets, function(x) x@ranges@start)
+mnva_res = multipleNumericVectorAlign(pos_sets_num, 100000, '-')
+</code></pre>
 </div>
 
 ## numericVectorAlign
@@ -391,4 +451,11 @@ providing paired coordinates from both vectors with NA indicating gaps.
 Cons is the consensus vector obtained by averaging the paired
 coordinates.
 </p>
+<h4>
+Examples
+</h4>
+<pre><code class='language-R'>pos_sets = readRDS(system.file("testdata", "coordinate_sets.RDS", package = "replicationOrigins"))
+pos_sets_num = lapply(pos_sets, function(x) x@ranges@start)
+nva_res = numericVectorAlign(pos_sets_num$set1,pos_sets_num$set2, 100000)
+</code></pre>
 </div>

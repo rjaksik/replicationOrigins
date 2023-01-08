@@ -4,16 +4,23 @@
 \alias{multipleNumericVectorAlign}
 \title{Performs a comparison of multiple numerical vectors (e.g. genomic coordinates) using an algorithm similar to ClustalW}
 \usage{
-multipleNumericVectorAlign(vector_list, gap_penalty = 1e+06)
+multipleNumericVectorAlign(vector_list, gap_penalty = 1e+06, gap_symbol = NA)
 }
 \arguments{
-\item{vector_list}{list of numeric vectors to be compared}
+\item{vector_list}{List of numeric vectors to be compared.}
 
-\item{gap_penalty}{penalty for gap insertion (default:1000000)}
+\item{gap_penalty}{Penalty for gap insertion. Use lower values to match more similar positions, at the cost of increased number of gaps.}
+
+\item{gap_symbol}{Value used to represent gaps}
 }
 \value{
-Matrix with matched coordinates from all vectors with NA indicating gaps.
+Matrix with matched coordinates from all vectors with NA (or other chosen symbol) indicating gaps.
 }
 \description{
 Performs a comparison of multiple numerical vectors (e.g. genomic coordinates) using an algorithm similar to ClustalW
+}
+\examples{
+pos_sets = readRDS(system.file("testdata", "coordinate_sets.RDS", package = "replicationOrigins"))
+pos_sets_num = lapply(pos_sets, function(x) x@ranges@start)
+mnva_res = multipleNumericVectorAlign(pos_sets_num, 100000, '-')
 }

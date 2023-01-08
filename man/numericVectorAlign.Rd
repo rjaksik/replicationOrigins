@@ -21,3 +21,8 @@ Returns a list of  variables: Score, AlignTab and Cons. Score is the genreral si
 \description{
 Compares two numeric vectors using Nedleman-Wunsh alignment algorithm
 }
+\examples{
+pos_sets = readRDS(system.file("testdata", "coordinate_sets.RDS", package = "replicationOrigins"))
+pos_sets_num = lapply(pos_sets, function(x) x@ranges@start)
+nva_res = numericVectorAlign(pos_sets_num$set1,pos_sets_num$set2, 100000)
+}

@@ -2,12 +2,12 @@
 % Please edit documentation in R/pmaORIdetection.R
 \name{pmaORIdetection}
 \alias{pmaORIdetection}
-\title{Detection of replication origins based on mutation patterns associated with POLE-exo mutants}
+\title{Detection of replication origins based on mutation patterns}
 \usage{
 pmaORIdetection(
-  MUTGR,
-  sel_mutations_norm = c("TCT->TAT", "TCG->TTG"),
-  sel_mutations_revcomp = c("AGA->ATA", "CGA->CAA"),
+  mutGR,
+  pattern_mut_norm = c("TCT->TAT", "TCG->TTG"),
+  pattern_mut_revcomp = c("AGA->ATA", "CGA->CAA"),
   win = 2e+05,
   dist = 1000,
   PeakCut = 0.1,
@@ -17,11 +17,11 @@ pmaORIdetection(
 )
 }
 \arguments{
-\item{MUTGR}{GenomicRanges object with somatic SNV positions, the object should additionally contain an "mutation" column specifying mutation type including its context e.g. TCT->TAT (this format is not obligatory and can be different as long as its the same for sel_mutations_* variables)}
+\item{mutGR}{GenomicRanges object with somatic SNV positions, the object should additionally contain an "mutation" column specifying mutation type including its context e.g. TCT->TAT (this format is not obligatory and can be different as long as its the same for sel_mutations_* variables). Strand information is ignored.}
 
-\item{sel_mutations_norm}{vector of mutations found upstream of the replication origins (default: TCT->TAT, TCG->TTG)}
+\item{pattern_mut_norm}{vector of mutations found upstream of the replication origins (default: TCT->TAT, TCG->TTG)}
 
-\item{sel_mutations_revcomp}{vector of mutations found downstream of the replication origins (default: AGA->ATA, CGA->CAA)}
+\item{pattern_mut_revcomp}{vector of mutations found downstream of the replication origins (default: AGA->ATA, CGA->CAA)}
 
 \item{win}{window size used to calculate the PMA score (default: 200000)}
 
@@ -31,13 +31,17 @@ pmaORIdetection(
 
 \item{PvalCut}{adjusted p-value cutoff used to filter the ORI set using Fisher's exact test (default: 0.01)}
 
-\item{useChrs}{perform the algorithm only for a specific set of chromosomes (default: NULL - use all basic chromosomes only)}
+\item{useChrs}{perform the algorithm only for a specific set of chromosomes (default: NULL - use all basic chromosomes)}
 
-\item{refGenome}{version of the reference genome supported values are hg19 and hg38 (default: hg19)}
+\item{refGenome}{version of the reference genome, supported values are hg19 and hg38 (default: hg19)}
 }
 \value{
 Returns a list of 2 variables PeaksGR and PMAscores. PeaksGR is a GRanges object with positions of all identified peaks and corresponding PMA score and adjusted p-value of the Fisher's exact test. PMAscores is a data.frame object with detailed statistics obtained for each of the genomic regions, including the number of mutations from each group used to calculate PMA score, smoothed PMA score (used in peak detection), positions of peaks and adjusted p-values of the Fisher's exact test.
 }
 \description{
-Detection of replication origins based on mutation patterns associated with POLE-exo mutants
+Detection of replication origins based on mutation patterns associated with POLE-exo mutants, using PMA score.
+}
+\examples{
+mutGR = readRDS(system.file("testdata", "somatic_mutations.RDS", package = "replicationOrigins"))
+ori_pos = pmaORIdetection(mutGR, useChrs='chr22')
 }

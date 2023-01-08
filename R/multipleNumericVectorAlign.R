@@ -1,11 +1,19 @@
 #' Performs a comparison of multiple numerical vectors (e.g. genomic coordinates) using an algorithm similar to ClustalW
 #'
-#' @param vector_list list of numeric vectors to be compared
-#' @param gap_penalty  penalty for gap insertion (default:1000000)
+#' @param vector_list List of numeric vectors to be compared.
+#' @param gap_penalty Penalty for gap insertion. Use lower values to match more similar positions, at the cost of increased number of gaps.
+#' @param gap_symbol Value used to represent gaps
 #'
-#' @return Matrix with matched coordinates from all vectors with NA indicating gaps.
+#' @return Matrix with matched coordinates from all vectors with NA (or other chosen symbol) indicating gaps.
 #' @export
-multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
+#'
+#' @examples
+#' pos_sets = readRDS(system.file("testdata", "coordinate_sets.RDS", package = "replicationOrigins"))
+#' pos_sets_num = lapply(pos_sets, function(x) x@ranges@start)
+#' mnva_res = multipleNumericVectorAlign(pos_sets_num, 100000, '-')
+multipleNumericVectorAlign = function(vector_list,
+                                      gap_penalty=1000000,
+                                      gap_symbol = NA) {
 
 
   #1. Calculate all possible pairwise alignments, record the score for each pair.
@@ -109,6 +117,6 @@ multipleNumericVectorAlign = function(vector_list,gap_penalty=1000000) {
 
 
   #5. Report the multiple sequence alignment
-  MSAres[is.na(MSAres)] = '-'
-  return(data.frame(MSAres,check.names = F))
+  MSAres[is.na(MSAres)] = gap_symbol
+  return(data.frame(t(MSAres),check.names = F))
 }

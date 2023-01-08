@@ -2,20 +2,34 @@
 % Please edit documentation in R/detectPeaksOKseq.R
 \name{detectPeaksOKseq}
 \alias{detectPeaksOKseq}
-\title{Detection of RFD profile changes associated with DNA replication origins, based on OK-seq data}
+\title{Detection of replication origins based on OK-seq data}
 \usage{
-detectPeaksOKseq(Data, IntSize = 2e+05, StepSize = 1000)
+detectPeaksOKseq(
+  Data,
+  IntSize = 2e+05,
+  StepSize = 1000,
+  MovingAvgPts = 200,
+  Verbose = TRUE
+)
 }
 \arguments{
-\item{Data}{data frame containing position-specific RFD values. The format is as following, 4 columns chr, start, end, RFD}
+\item{Data}{Data frame containing position-specific RFD values. Four columns are expected: chr, start, end, RFD. Column names can be different but the order needs to preserved.}
 
-\item{IntSize}{size of the window used to calculate linear regression (default:200000)}
+\item{IntSize}{Size of the window used to calculate linear regression.}
 
-\item{StepSize}{distance between intervals used to calculate linear regression (default:1000)}
+\item{StepSize}{Distance between intervals used to calculate linear regression.}
+
+\item{MovingAvgPts}{Number of neighboring points used to calculate the moving average for the purpose of linear regression slope smoothing.}
+
+\item{Verbose}{Show chromosome progress details.}
 }
 \value{
 Table with coordinates of the RFD shifts associated with DNA replication origins
 }
 \description{
-Detection of RFD profile changes associated with DNA replication origins, based on OK-seq data
+Detection of replication origins based on OK-seq data using RFD profile changes. For detailes on how to calculate RFD profiles see: Petryk, N., Kahli, M., d'Aubenton-Carafa, Y. et al. Replication landscape of the human genome. Nat Commun 7, 10208 (2016). https://doi.org/10.1038/ncomms10208
+}
+\examples{
+rfd = readRDS(system.file("testdata", "rfd_profile.RDS", package = "replicationOrigins"))
+rfd_ori_pos = detectPeaksOKseq(rfd, Verbose = FALSE)
 }

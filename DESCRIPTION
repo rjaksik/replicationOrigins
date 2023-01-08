@@ -10,9 +10,12 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Description: This package contains functions used to detect replication origins based on PMA score (somatic mutation pattern) and RFD profiles (OK-seq data). The package also contains function used to compare two or more sets of numerical vectors using an algorithm similar to Nedleman-Wunsh global alignment.
+Depends:
+    R (>= 3.5.0)
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 Imports:
     peakPick,
     ape,
@@ -21,3 +24,4 @@ Imports:
     IRanges,
     stringr
 VignetteBuilder: knitr
+Config/testthat/edition: 3

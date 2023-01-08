@@ -7,13 +7,21 @@
 #'
 #' @return Returns a list of  variables: Score, AlignTab and Cons. Score is the genreral similarity score between the sequences. AlignTab is a table providing paired coordinates from both vectors with NA indicating gaps. Cons is the consensus vector obtained by averaging the paired coordinates.
 #' @export
-numericVectorAlign = function(vec1,vec2,gap_penalty=1000000,sort=FALSE) {
+#'
+#' @examples
+#' pos_sets = readRDS(system.file("testdata", "coordinate_sets.RDS", package = "replicationOrigins"))
+#' pos_sets_num = lapply(pos_sets, function(x) x@ranges@start)
+#' nva_res = numericVectorAlign(pos_sets_num$set1,pos_sets_num$set2, 100000)
+numericVectorAlign = function(vec1,
+                              vec2,
+                              gap_penalty=1000000,
+                              sort=FALSE) {
 
   #length of both vectors
   Nrow=length(vec1)
   Ncol=length(vec2)
 
-  #sort the vectors if possible
+  #sort the vectors if required
   if(sort) {
     NAelem = is.na(c(vec1,vec1))
     if (sum(NAelem)>0) {
