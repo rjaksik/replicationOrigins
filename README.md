@@ -4,6 +4,7 @@
 # replicationOrigins
 
 <!-- badges: start -->
+[![DOI](https://zenodo.org/badge/340384307.svg)](https://zenodo.org/badge/latestdoi/340384307)
 <!-- badges: end -->
 
 Functions used for replication origin detection and evaluation
